@@ -513,23 +513,17 @@ export class GameScene extends Phaser.Scene implements Arena {
     );
   }
 
+  private spawnEnemy(
+    kind: "drone" | "dart" | "turret" | "lancer",
+    x: number,
+    y: number,
+    side: number,
+  ): void {
+    this.enemies.push(new ShmupPrefabSprite(this, x, y, kind, x, side));
+  }
+
   summon(_kind: string, x: number, y: number): void {
-    this.enemies.push(
-      new ShmupPrefabSprite(
-        this,
-        x,
-        y,
-        "drone",
-        2,
-        100,
-        13,
-        0.015,
-        true,
-        false,
-        x,
-        x < WIDTH / 2 ? 1 : -1,
-      ),
-    );
+    this.spawnEnemy("drone", x, y, x < WIDTH / 2 ? 1 : -1);
   }
 
   // one tick of gameplay
@@ -605,57 +599,11 @@ export class GameScene extends Phaser.Scene implements Arena {
   }
 
   private spawnWave(wave: WaveDef): void {
-    const stats = {
-      drone: {
-        hp: 2,
-        score: 100,
-        radius: 13,
-        dropChance: 0.015,
-        canShoot: true,
-      },
-      dart: {
-        hp: 1,
-        score: 150,
-        radius: 12,
-        dropChance: 0.015,
-        canShoot: false,
-      },
-      turret: {
-        hp: 12,
-        score: 400,
-        radius: 19,
-        dropChance: 0.3,
-        canShoot: true,
-      },
-      lancer: {
-        hp: 4,
-        score: 250,
-        radius: 15,
-        dropChance: 0.06,
-        canShoot: true,
-      },
-    } as const;
-
-    const shot = stats[wave.kind];
     for (let i = 0; i < wave.count; i++) {
       const x = this.waveX(wave, i);
       const y = this.waveY(wave, i);
       const side = i % 2 === 0 ? 1 : -1;
-      const enemy = new ShmupPrefabSprite(
-        this,
-        x,
-        y,
-        wave.kind,
-        shot.hp,
-        shot.score,
-        shot.radius,
-        shot.dropChance,
-        shot.canShoot,
-        false,
-        x,
-        side,
-      );
-      this.enemies.push(enemy);
+      this.spawnEnemy(wave.kind, x, y, side);
     }
   }
 
