@@ -25,7 +25,7 @@ const VICTORY_TICKS = 180;
 type EnemyKind = "drone" | "dart" | "turret" | "lancer";
 type WaveFormation = "line" | "vee" | "column" | "pincer";
 
-type WaveDef = {
+interface WaveDef {
   at: number;
   kind: EnemyKind;
   count: number;
@@ -34,14 +34,23 @@ type WaveDef = {
   step?: number;
   spread?: number;
   y?: number;
-};
+}
 
-type SectorDef = {
+interface SectorDef {
   name: string;
   subtitle: string;
   length: number;
   waves: WaveDef[];
-};
+}
+
+interface RunTotals {
+  score: number;
+  lives: number;
+  kills: number;
+  hits: number;
+  continues: number;
+  bossDefeated?: boolean;
+}
 
 const SECTORS: SectorDef[] = [
   {
@@ -227,14 +236,7 @@ export class PlayScene extends Phaser.Scene implements Arena {
   rng!: Rng;
   player!: Player;
   now = 0;
-  private run!: {
-    score: number;
-    lives: number;
-    kills: number;
-    hits: number;
-    continues: number;
-    bossDefeated?: boolean;
-  };
+  private run!: RunTotals;
   private pilot!: Pilot;
   private pilotKind: "keyboard" | "auto" = "keyboard";
   private backdrop!: Backdrop;
@@ -244,9 +246,9 @@ export class PlayScene extends Phaser.Scene implements Arena {
   private pickups: PowerUp[] = [];
   private sector = -1;
   private sectorStart = 0;
-  private enemy1;
-  private enemy2;
-  private enemy3;
+  private enemy1: Enemy | null = null;
+  private enemy2: Enemy | null = null;
+  private enemy3: Enemy | null = null;
   private boss: Boss | null = null;
   private bossDueAt = 0;
   private victoryAt = 0;
